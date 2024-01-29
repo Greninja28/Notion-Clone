@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1706503716051,
+      "tag": "0000_mature_trauma",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1706558203198,
+      "tag": "0001_strong_maginty",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1706559132604,
+      "tag": "0002_handy_sprite",
+      "breakpoints": true
+    }
+  ]
+}
