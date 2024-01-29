@@ -1,20 +1,138 @@
 import type { Config } from "tailwindcss";
 
-const config: Config = {
+const config = {
+  darkMode: ["class"],
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
+  prefix: "",
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        "washed-purple/washed-purple-50": "#f8f3ff",
+        "washed-purple/washed-purple-100": "#e8d8ff",
+        "washed-purple/washed-purple-200": "#ddc6ff",
+        "washed-purple/washed-purple-300": "#cdabff",
+        "washed-purple/washed-purple-400": "#c49bff",
+        "washed-purple/washed-purple-500": "#b582ff",
+        "washed-purple/washed-purple-600": "#a576e8",
+        "washed-purple/washed-purple-700": "#815cb5",
+        "washed-purple/washed-purple-800": "#64488c",
+        "washed-purple/washed-purple-900": "#4c376b",
+        "washed-blue/washed-blue-50": "#f0f3ff",
+        "washed-blue/washed-blue-100": "#d0daff",
+        "washed-blue/washed-blue-200": "#bac9ff",
+        "washed-blue/washed-blue-300": "#9ab0ff",
+        "washed-blue/washed-blue-400": "#86a1ff",
+        "washed-blue/washed-blue-500": "#6889ff",
+        "washed-blue/washed-blue-600": "#5f7de8",
+        "washed-blue/washed-blue-700": "#4a61b5",
+        "washed-blue/washed-blue-800": "#394b8c",
+        "washed-blue/washed-blue-900": "#2c3a6b",
+        "primary-blue/primary-blue-50": "#eef5ff",
+        "primary-blue/primary-blue-100": "#c9dfff",
+        "primary-blue/primary-blue-200": "#afcfff",
+        "primary-blue/primary-blue-300": "#8bb9ff",
+        "primary-blue/primary-blue-400": "#75acff",
+        "primary-blue/primary-blue-500": "#5297ff",
+        "primary-blue/primary-blue-600": "#4b89e8",
+        "primary-blue/primary-blue-700": "#3a6bb5",
+        "primary-blue/primary-blue-800": "#2d538c",
+        "primary-blue/primary-blue-900": "#223f6b",
+        "primary-purple/primary-purple-50": "#f1e6ff",
+        "primary-purple/primary-purple-100": "#d3b0ff",
+        "primary-purple/primary-purple-200": "#bd8aff",
+        "primary-purple/primary-purple-300": "#9f54ff",
+        "primary-purple/primary-purple-400": "#8d33ff",
+        "primary-purple/primary-purple-500": "#7000ff",
+        "primary-purple/primary-purple-600": "#6600e8",
+        "primary-purple/primary-purple-700": "#5000b5",
+        "primary-purple/primary-purple-800": "#3e008c",
+        "primary-purple/primary-purple-900": "#2f006b",
+        "neutrals/neutrals-1": "#ffffff",
+        "neutrals/neutrals-2": "#fcfcfd",
+        "neutrals/neutrals-3": "#f5f5f6",
+        "neutrals/neutrals-4": "#f0f0f1",
+        "neutrals/neutrals-5": "#d9d9dc",
+        "neutrals/neutrals-6": "#c0bfc4",
+        "neutrals/neutrals-7": "#8e8c95",
+        "neutrals/neutrals-8": "#5b5966",
+        "neutrals/neutrals-9": "#474553",
+        "neutrals/neutrals-10": "#292637",
+        "neutrals/neutrals-11": "#211f30",
+        "neutrals/neutrals-12": "#171427",
+        "neutrals/neutrals-13": "#030014",
+        "brand/brand-washedPurple": "#b582ff",
+        "brand/brand-washedBlue": "#6889ff",
+        "brand/brand-primaryBlue": "#0469ff",
+        "brand/brand-primaryPurple": "#7000ff",
+        "brand/brand-dark": "#030014",
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [],
-};
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config;
+
 export default config;
