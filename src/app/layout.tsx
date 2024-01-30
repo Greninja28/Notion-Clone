@@ -8,6 +8,14 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Cypress",
   description: "",
+  icons: {
+    icon: [
+      {
+        url: "/cypresslogo.svg",
+        href: "/cypresslogo.svg",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -15,7 +23,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log(db);
+  // console.log(db);
   return (
     <html lang="en">
       <body className={inter.className}>
