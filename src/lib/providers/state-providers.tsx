@@ -22,10 +22,12 @@ interface AppStateProviderProps {
   children: React.ReactNode;
 }
 
-type Action = {
-  type: "ADD_WORKSPACE";
-  payload: appWorkspacesType;
-};
+type Action =
+  | { type: "ADD_WORKSPACE"; payload: appWorkspacesType }
+  | {
+      type: "SET_WORKSPACES";
+      payload: { workspaces: appWorkspacesType[] | [] };
+    };
 
 const initalState: AppState = {
   workspaces: [],
@@ -38,6 +40,8 @@ const appReducer = (
   switch (action.type) {
     case "ADD_WORKSPACE":
       return { ...state, workspaces: [...state.workspaces, action.payload] };
+    case "SET_WORKSPACES":
+      return { ...state, workspaces: action.payload.workspaces };
     default:
       return initalState;
   }
