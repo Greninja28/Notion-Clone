@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import SelectedWorkspace from "./selected-workspace";
 import CustomDialogTrigger from "../global/custom-dialog";
 import WorkspaceCreator from "../global/workspace-creator";
+import { Plus } from "lucide-react";
 
 interface WorkspaceDropdownProps {
   collaboratedWorkspaces: workspace[] | [];
@@ -62,7 +63,7 @@ const WorkspaceDropdown = ({
         </span>
       </div>
       {isOpen && (
-        <div className="origin-top-right absolute w-full rounded-md shadow-md z-50 h-[190px] bg-black/10 backdrop-blur-lg group border-[1px] border-muted">
+        <div className="origin-top-right absolute w-full rounded-md shadow-md z-50 h-[190px] bg-black/10 backdrop-blur-lg overflow-scroll group border-[1px] border-muted">
           <div className="flex rounded-md flex-col ">
             <div className="!p-2">
               {!!privateWorkspaces.length && (
@@ -111,8 +112,8 @@ const WorkspaceDropdown = ({
               description="Workspaces give you the power to collaborate with others. You can change your workspace privacy settings after creating the workspaces too."
             >
               <div className="flex transition-all hover:bg-muted justify-center items-center gap-2 p-2 w-full">
-                <article className="flex text-slate-500 rounded-full bg-slate-800 w-5 h-5 items-center justify-center pb-1">
-                  +
+                <article className="flex text-slate-500 rounded-full bg-slate-800 w-5 h-5 items-center justify-center">
+                  <Plus className="w-3 h-3" />
                 </article>
                 Create workspace
               </div>

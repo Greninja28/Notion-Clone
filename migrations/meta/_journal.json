@@ -29,6 +29,13 @@
       "when": 1707073263732,
       "tag": "0003_slippery_machine_man",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1708262322639,
+      "tag": "0004_condemned_grandmaster",
+      "breakpoints": true
     }
   ]
 }

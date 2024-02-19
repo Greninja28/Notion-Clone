@@ -3,8 +3,8 @@
 import { validate } from "uuid";
 import { folders, users, workspaces } from "../../../migrations/schema";
 import db from "./db";
-import { Folder, Subscription, workspace } from "./supabase.types";
-import { and, eq, notExists } from "drizzle-orm";
+import { Folder, Subscription, User, workspace } from "./supabase.types";
+import { and, eq, ilike, notExists } from "drizzle-orm";
 import { collaborators } from "./schema";
 
 export const getUserSubscriptionStatus = async (userId: string) => {
@@ -120,4 +120,27 @@ export const getSharedWorkspaces = async (userId: string) => {
     .where(eq(workspaces.workspaceOwner, userId))) as workspace[];
 
   return sharedWorkspaces;
+};
+
+export const addCollaborators = async (users: User[], workspaceId: string) => {
+  const response = users.forEach(async (user: User) => {
+    const userExists = await db.query.collaborators.findFirst({
+      where: (u, { eq }) =>
+        and(eq(u.userId, user.id), eq(u.workspaceId, workspaceId)),
+    });
+
+    if (!userExists) {
+      await db.insert(collaborators).values({ workspaceId, userId: user.id });
+    }
+  });
+};
+
+export const getUsersFromSearch = async (email: string) => {
+  if (!email) return [];
+  const accounts = db
+    .select()
+    .from(users)
+    .where(ilike(users.email, `${email}%`));
+
+  return accounts;
 };
