@@ -1,14 +1,14 @@
 import {
   pgTable,
-  pgEnum,
-  uuid,
-  timestamp,
-  text,
   foreignKey,
-  jsonb,
+  pgEnum,
+  text,
   boolean,
   bigint,
   integer,
+  jsonb,
+  uuid,
+  timestamp,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -32,19 +32,19 @@ export const keyType = pgEnum("key_type", [
   "aead-ietf",
 ]);
 export const aalLevel = pgEnum("aal_level", ["aal3", "aal2", "aal1"]);
-export const factorType = pgEnum("factor_type", ["webauthn", "totp"]);
-export const factorStatus = pgEnum("factor_status", ["verified", "unverified"]);
 export const codeChallengeMethod = pgEnum("code_challenge_method", [
   "plain",
   "s256",
 ]);
-export const pricingType = pgEnum("pricing_type", ["recurring", "one_time"]);
+export const factorStatus = pgEnum("factor_status", ["verified", "unverified"]);
+export const factorType = pgEnum("factor_type", ["webauthn", "totp"]);
 export const pricingPlanInterval = pgEnum("pricing_plan_interval", [
   "year",
   "month",
   "week",
   "day",
 ]);
+export const pricingType = pgEnum("pricing_type", ["recurring", "one_time"]);
 export const subscriptionStatus = pgEnum("subscription_status", [
   "unpaid",
   "past_due",
@@ -55,43 +55,32 @@ export const subscriptionStatus = pgEnum("subscription_status", [
   "trialing",
 ]);
 
-export const workspaces = pgTable("workspaces", {
-  id: uuid("id").defaultRandom().primaryKey().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }),
-  workspaceOwner: uuid("workspace_owner").notNull(),
-  title: text("title").notNull(),
-  iconId: text("icon_id").notNull(),
-  data: text("data"),
-  inTrash: text("in_trash"),
-  logo: text("logo"),
-  bannerUrl: text("banner_url"),
+export const prices = pgTable("prices", {
+  id: text("id").primaryKey().notNull(),
+  productId: text("product_id").references(() => products.id),
+  active: boolean("active"),
+  description: text("description"),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  unitAmount: bigint("unit_amount", { mode: "number" }),
+  currency: text("currency"),
+  type: pricingType("type"),
+  interval: pricingPlanInterval("interval"),
+  intervalCount: integer("interval_count"),
+  trialPeriodDays: integer("trial_period_days"),
+  metadata: jsonb("metadata"),
 });
 
 export const folders = pgTable("folders", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .defaultNow()
+    .notNull(),
   title: text("title").notNull(),
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
   bannerUrl: text("banner_url"),
   workspaceId: uuid("workspace_id").references(() => workspaces.id, {
-    onDelete: "cascade",
-  }),
-});
-
-export const files = pgTable("files", {
-  id: uuid("id").defaultRandom().primaryKey().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }),
-  title: text("title").notNull(),
-  iconId: text("icon_id").notNull(),
-  data: text("data"),
-  inTrash: text("in_trash"),
-  bannerUrl: text("banner_url"),
-  workspaceId: uuid("workspace_id").references(() => workspaces.id, {
-    onDelete: "cascade",
-  }),
-  folderId: uuid("folder_id").references(() => folders.id, {
     onDelete: "cascade",
   }),
 });
@@ -117,38 +106,6 @@ export const users = pgTable(
     };
   }
 );
-
-export const customers = pgTable("customers", {
-  id: uuid("id")
-    .primaryKey()
-    .notNull()
-    .references(() => users.id),
-  stripeCustomerId: text("stripe_customer_id"),
-});
-
-export const products = pgTable("products", {
-  id: text("id").primaryKey().notNull(),
-  active: boolean("active"),
-  name: text("name"),
-  description: text("description"),
-  image: text("image"),
-  metadata: jsonb("metadata"),
-});
-
-export const prices = pgTable("prices", {
-  id: text("id").primaryKey().notNull(),
-  productId: text("product_id").references(() => products.id),
-  active: boolean("active"),
-  description: text("description"),
-  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-  unitAmount: bigint("unit_amount", { mode: "number" }),
-  currency: text("currency"),
-  type: pricingType("type"),
-  interval: pricingPlanInterval("interval"),
-  intervalCount: integer("interval_count"),
-  trialPeriodDays: integer("trial_period_days"),
-  metadata: jsonb("metadata"),
-});
 
 export const subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey().notNull(),
@@ -193,4 +150,66 @@ export const subscriptions = pgTable("subscriptions", {
     withTimezone: true,
     mode: "string",
   }).default(sql`now()`),
+});
+
+export const collaborators = pgTable("collaborators", {
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .defaultNow()
+    .notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+});
+
+export const customers = pgTable("customers", {
+  id: uuid("id")
+    .primaryKey()
+    .notNull()
+    .references(() => users.id),
+  stripeCustomerId: text("stripe_customer_id"),
+});
+
+export const files = pgTable("files", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .defaultNow()
+    .notNull(),
+  title: text("title").notNull(),
+  iconId: text("icon_id").notNull(),
+  data: text("data"),
+  inTrash: text("in_trash"),
+  bannerUrl: text("banner_url"),
+  workspaceId: uuid("workspace_id").references(() => workspaces.id, {
+    onDelete: "cascade",
+  }),
+  folderId: uuid("folder_id").references(() => folders.id, {
+    onDelete: "cascade",
+  }),
+});
+
+export const products = pgTable("products", {
+  id: text("id").primaryKey().notNull(),
+  active: boolean("active"),
+  name: text("name"),
+  description: text("description"),
+  image: text("image"),
+  metadata: jsonb("metadata"),
+});
+
+export const workspaces = pgTable("workspaces", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .defaultNow()
+    .notNull(),
+  workspaceOwner: uuid("workspace_owner").notNull(),
+  title: text("title").notNull(),
+  iconId: text("icon_id").notNull(),
+  data: text("data"),
+  inTrash: text("in_trash"),
+  logo: text("logo"),
+  bannerUrl: text("banner_url"),
 });
