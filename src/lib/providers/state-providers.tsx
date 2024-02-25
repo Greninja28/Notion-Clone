@@ -8,8 +8,9 @@ import {
   useMemo,
   useReducer,
 } from "react";
-import { Folder, workspace } from "../supabase/supabase.types";
+import { File, Folder, workspace } from "../supabase/supabase.types";
 import { usePathname } from "next/navigation";
+import { getFiles } from "../supabase/queries";
 
 export type appFoldersType = Folder & { files: File[] | [] };
 export type appWorkspacesType = workspace & { folders: appFoldersType[] | [] };
@@ -35,8 +36,16 @@ type Action =
       payload: { workspaceId: string; folders: [] | appFoldersType[] };
     }
   | {
+      type: "SET_FILES";
+      payload: { workspaceId: string; folderId: string; files: File[] };
+    }
+  | {
       type: "ADD_FOLDER";
       payload: { workspaceId: string; folder: appFoldersType };
+    }
+  | {
+      type: "ADD_FILE";
+      payload: { workspaceId: string; folderId: string; file: File };
     }
   | {
       type: "UPDATE_FOLDER";
@@ -44,6 +53,15 @@ type Action =
         workspaceId: string;
         folder: Partial<appFoldersType>;
         folderId: string;
+      };
+    }
+  | {
+      type: "UPDATE_FILE";
+      payload: {
+        workspaceId: string;
+        file: Partial<File>;
+        folderId: string;
+        fileId: string;
       };
     };
 
@@ -97,6 +115,24 @@ const appReducer = (
           return workspace;
         }),
       };
+    case "SET_FILES":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: workspace.folders.map((folder) => {
+                if (folder.id === action.payload.folderId) {
+                  return { ...folder, files: action.payload.files };
+                }
+                return folder;
+              }),
+            };
+          }
+          return workspace;
+        }),
+      };
     case "ADD_FOLDER":
       return {
         ...state,
@@ -124,6 +160,57 @@ const appReducer = (
               folders: workspace.folders.map((folder) => {
                 if (folder.id === action.payload.folderId) {
                   return { ...folder, ...action.payload.folder };
+                }
+                return folder;
+              }),
+            };
+          }
+          return workspace;
+        }),
+      };
+    case "ADD_FILE":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: workspace.folders.map((folder) => {
+                if (folder.id === action.payload.folderId) {
+                  return {
+                    ...folder,
+                    files: [...folder.files, action.payload.file].sort(
+                      (a, b) =>
+                        new Date(a.createdAt).getTime() -
+                        new Date(b.createdAt).getTime()
+                    ),
+                  };
+                }
+                return folder;
+              }),
+            };
+          }
+          return workspace;
+        }),
+      };
+    case "UPDATE_FILE":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: workspace.folders.map((folder) => {
+                if (folder.id === action.payload.folderId) {
+                  return {
+                    ...folder,
+                    files: folder.files.map((file) => {
+                      if (file.id === action.payload.fileId) {
+                        return { ...file, ...action.payload.file };
+                      }
+                      return file;
+                    }),
+                  };
                 }
                 return folder;
               }),
@@ -178,6 +265,26 @@ const AppStateProvider = ({ children }: AppStateProviderProps) => {
       }
     }
   }, [pathname]);
+
+  useEffect(() => {
+    if (!folderId || !workspaceId) return;
+
+    const fetchFiles = async () => {
+      const { error: filesError, data } = await getFiles(folderId);
+
+      if (filesError) {
+        console.log(filesError);
+      }
+
+      if (!data) return;
+
+      dispatch({
+        type: "SET_FILES",
+        payload: { workspaceId, files: data, folderId },
+      });
+    };
+    fetchFiles();
+  }, [folderId, workspaceId]);
 
   useEffect(() => {
     console.log("App state changed", state);
