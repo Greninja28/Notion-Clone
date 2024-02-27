@@ -158,6 +158,7 @@ const Dropdown = ({
   // onchanges
   const onChangeEmoji = async (selectedEmoji: string) => {
     if (!workspaceId) return;
+    const pathId = id.split("folder");
     if (listType === "folder") {
       dispatch({
         type: "UPDATE_FOLDER",
@@ -180,6 +181,36 @@ const Dropdown = ({
         toast({
           title: "Success",
           description: "Updated the emoji for the folder",
+        });
+      }
+    }
+
+    if (listType === "file") {
+      dispatch({
+        type: "UPDATE_FILE",
+        payload: {
+          workspaceId,
+          folderId: pathId[0],
+          file: { iconId: selectedEmoji },
+          fileId: pathId[1],
+        },
+      });
+
+      const { data, error } = await updateFile(
+        { iconId: selectedEmoji },
+        pathId[1]
+      );
+
+      if (error) {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "Could not update the emoji for the file",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Updated the emoji for the file",
         });
       }
     }
@@ -305,6 +336,7 @@ const Dropdown = ({
           "group-hover/folder:block": listType === "folder",
         }
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isFolder]
   );
 

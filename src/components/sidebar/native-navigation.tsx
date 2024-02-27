@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge";
 import CypressHomeIcon from "../icons/cypressHomeIcon";
 import CypressSettingsIcon from "../icons/cypressSettingsIcon";
 import CypressTrashIcon from "../icons/cypressTrashIcon";
+import Settings from "../settings/settings";
 
 interface NativeNavigationProps {
   myWorkspaceId: string;
@@ -26,15 +27,12 @@ const NativeNavigation = ({
             <span>My Workspace</span>
           </Link>
         </li>
-        <li>
-          <Link
-            className="group/native flex text-neutrals/neutrals-7 gap-2 transition-all"
-            href={`/dashboard/${myWorkspaceId}`}
-          >
+        <Settings>
+          <li className="group/native flex text-neutrals/neutrals-7 gap-2 transition-all cursor-pointer">
             <CypressSettingsIcon />
             <span>Settings</span>
-          </Link>
-        </li>
+          </li>
+        </Settings>
         <li>
           <Link
             className="group/native flex text-neutrals/neutrals-7 gap-2 transition-all"

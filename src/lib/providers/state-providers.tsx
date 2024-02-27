@@ -26,7 +26,10 @@ interface AppStateProviderProps {
 type Action =
   | { type: "ADD_WORKSPACE"; payload: appWorkspacesType }
   | { type: "DELETE_WORKSPACE"; payload: string }
-  | { type: "UPDATE_WORKSPACE"; payload: Partial<appWorkspacesType> }
+  | {
+      type: "UPDATE_WORKSPACE";
+      payload: { workspace: Partial<appWorkspacesType>; workspaceId: string };
+    }
   | {
       type: "SET_WORKSPACES";
       payload: { workspaces: appWorkspacesType[] | [] };
@@ -87,10 +90,10 @@ const appReducer = (
       return {
         ...state,
         workspaces: state.workspaces.map((workspace) => {
-          if (workspace.id === action.payload.id) {
+          if (workspace.id === action.payload.workspaceId) {
             return {
               ...workspace,
-              ...action.payload,
+              ...action.payload.workspace,
             };
           }
           return workspace;
