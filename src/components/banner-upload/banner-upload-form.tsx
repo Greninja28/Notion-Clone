@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  appFoldersType,
-  appWorkspacesType,
-  useAppState,
-} from "@/lib/providers/state-providers";
-import { File, Folder, workspace } from "@/lib/supabase/supabase.types";
+import { useAppState } from "@/lib/providers/state-providers";
 import { UploadBannerFormSchema } from "@/lib/types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import React from "react";
@@ -22,12 +17,11 @@ import {
 } from "@/lib/supabase/queries";
 
 interface BannerUploadFormProps {
-  details: appWorkspacesType | appFoldersType | File | workspace | Folder;
   dirType: "workspace" | "folder" | "file";
   id: string;
 }
 
-const BannerUploadForm = ({ details, dirType, id }: BannerUploadFormProps) => {
+const BannerUploadForm = ({ dirType, id }: BannerUploadFormProps) => {
   const supabase = createClientComponentClient();
   const { state, workspaceId, folderId, dispatch } = useAppState();
   const {
@@ -97,7 +91,9 @@ const BannerUploadForm = ({ details, dirType, id }: BannerUploadFormProps) => {
         });
         await updateWorkspace({ bannerUrl: filePath }, id);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

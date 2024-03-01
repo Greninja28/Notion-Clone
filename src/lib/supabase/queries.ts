@@ -6,7 +6,6 @@ import db from "./db";
 import { File, Folder, Subscription, User, workspace } from "./supabase.types";
 import { and, eq, ilike, notExists } from "drizzle-orm";
 import { collaborators } from "./schema";
-import { revalidatePath } from "next/cache";
 
 export const getUserSubscriptionStatus = async (userId: string) => {
   try {
@@ -247,7 +246,6 @@ export const updateWorkspace = async (
       .update(workspaces)
       .set(workspace)
       .where(eq(workspaces.id, workspaceId));
-    revalidatePath(`/dashboard/${workspaceId}`);
     return { data: null, error: null };
   } catch (error) {
     console.log(error);

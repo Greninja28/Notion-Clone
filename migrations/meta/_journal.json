@@ -43,6 +43,13 @@
       "when": 1708344767762,
       "tag": "0005_great_mesmero",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1709294580448,
+      "tag": "0006_confused_deathstrike",
+      "breakpoints": true
     }
   ]
 }
