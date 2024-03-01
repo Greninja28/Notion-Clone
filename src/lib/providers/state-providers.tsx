@@ -27,6 +27,14 @@ type Action =
   | { type: "ADD_WORKSPACE"; payload: appWorkspacesType }
   | { type: "DELETE_WORKSPACE"; payload: string }
   | {
+      type: "DELETE_FILE";
+      payload: { workspaceId: string; folderId: string; fileId: string };
+    }
+  | {
+      type: "DELETE_FOLDER";
+      payload: { workspaceId: string; folderId: string };
+    }
+  | {
       type: "UPDATE_WORKSPACE";
       payload: { workspace: Partial<appWorkspacesType>; workspaceId: string };
     }
@@ -85,6 +93,44 @@ const appReducer = (
         workspaces: state.workspaces.filter(
           (workspace) => workspace.id !== action.payload
         ),
+      };
+    case "DELETE_FILE":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: workspace.folders.map((folder) => {
+                if (folder.id === action.payload.folderId) {
+                  return {
+                    ...folder,
+                    files: folder.files.filter(
+                      (file) => file.id !== action.payload.fileId
+                    ),
+                  };
+                }
+                return folder;
+              }),
+            };
+          }
+          return workspace;
+        }),
+      };
+    case "DELETE_FOLDER":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: workspace.folders.filter(
+                (folder) => folder.id !== action.payload.folderId
+              ),
+            };
+          }
+          return workspace;
+        }),
       };
     case "UPDATE_WORKSPACE":
       return {

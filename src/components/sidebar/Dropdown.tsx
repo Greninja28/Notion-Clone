@@ -79,7 +79,11 @@ const Dropdown = ({
       router.push(`/dashboard/${workspaceId}/${accordianId}`);
     }
     if (type === "file") {
-      router.push(`/dashboard/${workspaceId}/${folderId}/${accordianId}`);
+      router.push(
+        `/dashboard/${workspaceId}/${folderId}/${
+          accordianId.split("folder")[1]
+        }`
+      );
     }
   };
 
