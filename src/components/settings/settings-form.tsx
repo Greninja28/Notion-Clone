@@ -14,6 +14,7 @@ import { Input } from "../ui/input";
 import {
   addCollaborators,
   deleteWorkspace,
+  getCollaborators,
   removeCollaborators,
   updateWorkspace,
 } from "@/lib/supabase/queries";
@@ -31,6 +32,16 @@ import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Alert, AlertDescription } from "../ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 const SettingsForm = () => {
   const { toast } = useToast();
@@ -53,9 +64,8 @@ const SettingsForm = () => {
     //   setOpen(true)
     //   return
     // }
-    await addCollaborators(collaborators, workspaceId);
+    await addCollaborators([profile], workspaceId);
     setCollaborators([...collaborators, profile]);
-    router.refresh();
   };
 
   // remove collaboratos
@@ -115,7 +125,24 @@ const SettingsForm = () => {
     }
   };
 
+  const onPermissionsChange = (val: string) => {
+    if (val === "private") {
+      setOpenAlertMessage(true);
+    } else {
+      setPermissions(val);
+    }
+  };
+
   // on clicks
+  const onClickAlertConfirm = async () => {
+    if (!workspaceId) return;
+    if (collaborators.length > 0) {
+      await removeCollaborators(collaborators, workspaceId);
+    }
+    setPermissions("private");
+    setOpenAlertMessage(false);
+  };
+
   // fetching avatar details
   // get workspace details
   useEffect(() => {
@@ -127,6 +154,17 @@ const SettingsForm = () => {
   }, [workspaceId, state]);
 
   // get all the collaborators
+  useEffect(() => {
+    if (!workspaceId) return;
+    const fetchCollaborators = async () => {
+      const response = await getCollaborators(workspaceId);
+      if (response.length) {
+        setPermissions("shared");
+        setCollaborators(response);
+      }
+    };
+    fetchCollaborators();
+  }, [workspaceId]);
 
   return (
     <div className="flex gap-4 flex-col">
@@ -166,12 +204,7 @@ const SettingsForm = () => {
 
       <>
         <Label htmlFor="permissions"></Label>
-        <Select
-          onValueChange={(val) => {
-            setPermissions(val);
-          }}
-          defaultValue={permissions}
-        >
+        <Select onValueChange={onPermissionsChange} value={permissions}>
           <SelectTrigger className="w-full h-26 -mt-3">
             <SelectValue />
           </SelectTrigger>
@@ -255,30 +288,50 @@ const SettingsForm = () => {
             </div>
           </div>
         )}
+
+        <Alert variant={"destructive"}>
+          <AlertDescription>
+            Warning! deleting your workspace will permanently delete all the
+            data related to this workspace.
+          </AlertDescription>
+          <Button
+            type="submit"
+            size={"sm"}
+            value={"destructive"}
+            className="mt-4 text-sm bg-destructive/40 border-2 border-destructive"
+            onClick={async () => {
+              if (!workspaceId) return;
+              await deleteWorkspace(workspaceId);
+              toast({ title: "Successfully deleted your workspace" });
+              dispatch({ type: "DELETE_WORKSPACE", payload: workspaceId });
+              router.replace("/dashboard");
+              router.refresh();
+            }}
+          >
+            Delete Workspace
+          </Button>
+        </Alert>
       </>
 
-      <Alert variant={"destructive"}>
-        <AlertDescription>
-          Warning! deleting your workspace will permanently delete all the data
-          related to this workspace.
-        </AlertDescription>
-        <Button
-          type="submit"
-          size={"sm"}
-          value={"destructive"}
-          className="mt-4 text-sm bg-destructive/40 border-2 border-destructive"
-          onClick={async () => {
-            if (!workspaceId) return;
-            await deleteWorkspace(workspaceId);
-            toast({ title: "Successfully deleted your workspace" });
-            dispatch({ type: "DELETE_WORKSPACE", payload: workspaceId });
-            router.replace("/dashboard");
-            router.refresh();
-          }}
-        >
-          Delete Workspace
-        </Button>
-      </Alert>
+      <AlertDialog open={openAlertMessage}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Changing a Shared workspace to Private workspace will remove all
+              collaborators permanently.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setOpenAlertMessage(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={onClickAlertConfirm}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
