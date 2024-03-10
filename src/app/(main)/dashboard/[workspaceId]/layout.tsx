@@ -24,6 +24,7 @@ const Layout = ({ children, params }: LayoutProps) => {
         border-l-[1px]
         w-full
         relative
+        overflow-scroll
       "
       >
         {children}

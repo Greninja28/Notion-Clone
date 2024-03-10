@@ -65,7 +65,7 @@ export const getFolders = async (workspaceId: string) => {
 
 export const getFiles = async (folderId: string) => {
   const isValid = validate(folderId);
-  if (!isValid) return { data: null, error: "Error" };
+  if (!isValid) return { data: null, error: "error" };
 
   try {
     const results: File[] | [] = await db
@@ -76,7 +76,7 @@ export const getFiles = async (folderId: string) => {
 
     return { data: results, error: null };
   } catch (error) {
-    return { data: null, error: "Error" };
+    return { data: null, error: error };
   }
 };
 
