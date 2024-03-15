@@ -7,7 +7,16 @@ import { User, workspace } from "@/lib/supabase/supabase.types";
 import { useSupabaseUser } from "@/lib/providers/supabase-user-provider";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Briefcase, Lock, Plus, Share } from "lucide-react";
+import {
+  Briefcase,
+  CreditCard,
+  ExternalLink,
+  Lock,
+  LogOut,
+  Plus,
+  Share,
+  User as UserIcon,
+} from "lucide-react";
 import { Separator } from "../ui/separator";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -42,13 +51,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import CypressProfileIcon from "../icons/cypressProfileIcon";
+import Link from "next/link";
+import { useSubscriptionModal } from "@/lib/providers/subscription-modal-provider";
+import { postData } from "@/lib/utils";
 
 const SettingsForm = () => {
   const { toast } = useToast();
   const { state, workspaceId, dispatch } = useAppState();
   const [permissions, setPermissions] = useState("private");
   const [collaborators, setCollaborators] = useState<User[] | []>([]);
-  const { user } = useSupabaseUser();
+  const { user, subscription } = useSupabaseUser();
+  const { open, setOpen } = useSubscriptionModal();
   const router = useRouter();
   const supabase = createClientComponentClient();
   const [openAlertMessage, setOpenAlertMessage] = useState(false);
@@ -56,14 +70,15 @@ const SettingsForm = () => {
   const titleTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [uploadingProfilePic, setUploadingProfilePic] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [loadingPortal, setLoadingPortal] = useState(false);
 
   // add collaborators
   const addCollaborator = async (profile: User) => {
     if (!workspaceId) return;
-    // if(subscription?.status !== "active" && collaborators.length >= 2){
-    //   setOpen(true)
-    //   return
-    // }
+    if (subscription?.status !== "active" && collaborators.length >= 2) {
+      setOpen(true);
+      return;
+    }
     await addCollaborators([profile], workspaceId);
     setCollaborators([...collaborators, profile]);
   };
@@ -133,6 +148,8 @@ const SettingsForm = () => {
     }
   };
 
+  const onChangeProfilePicture = () => {};
+
   // on clicks
   const onClickAlertConfirm = async () => {
     if (!workspaceId) return;
@@ -141,6 +158,18 @@ const SettingsForm = () => {
     }
     setPermissions("private");
     setOpenAlertMessage(false);
+  };
+
+  const redirectToCustomerPortal = async () => {
+    setLoadingPortal(true);
+    try {
+      const { url, error } = await postData({ url: "/api/create-portal-link" });
+      window.location.assign(url);
+    } catch (error) {
+      console.log(error);
+      setLoadingPortal(false);
+    }
+    setLoadingPortal(false);
   };
 
   // fetching avatar details
@@ -198,8 +227,13 @@ const SettingsForm = () => {
           accept="image/*"
           placeholder="Workspace Logo"
           onChange={onChangeWorkspaceLogo}
-          disabled={uploadingLogo}
+          disabled={uploadingLogo || subscription?.status !== "active"}
         />
+        {subscription?.status !== "active" && (
+          <small className="text-muted-foreground">
+            To customize your workspace, you need to be on a Pro Plan
+          </small>
+        )}
       </div>
 
       <>
@@ -311,6 +345,86 @@ const SettingsForm = () => {
             Delete Workspace
           </Button>
         </Alert>
+        <p className="flex items-center gap-2 mt-6">
+          <UserIcon size={20} /> Profile
+        </p>
+        <Separator />
+        <div className="flex items-center">
+          <Avatar>
+            <AvatarImage src={""} />
+            <AvatarFallback>
+              <CypressProfileIcon />
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col ml-6">
+            <small className="text-muted-foreground cursor-not-allowed">
+              {user ? user.email : ""}
+            </small>
+            <Label
+              htmlFor="profilePicture"
+              className="text-sm text-muted-foreground"
+            >
+              Profile Picture
+            </Label>
+            <Input
+              name="profilePicture"
+              type="file"
+              accept="image/*"
+              placeholder="Profile Picture"
+              onChange={onChangeProfilePicture}
+              disabled={uploadingProfilePic}
+            />
+          </div>
+        </div>
+        {/* <LogoutButton>
+          <div className="flex items-center">
+            <LogOut />
+          </div>
+        </LogoutButton> */}
+        <p className="flex items-center gap-2 mt-6">
+          <CreditCard size={20} />
+          Billing & Plan
+        </p>
+        <Separator />
+        <p className="text-muted-foreground">
+          You are currently on a{" "}
+          {subscription?.status === "active" ? "Pro" : "Free"} Plan
+        </p>
+        <Link
+          href={"/"}
+          target="_blank"
+          className="text-muted-foreground flex flex-row items-center gap-2"
+        >
+          View Plans <ExternalLink size={16} />
+        </Link>
+        {subscription?.status === "active" ? (
+          <div>
+            <Button
+              type="button"
+              size={"sm"}
+              variant={"secondary"}
+              disabled={loadingPortal}
+              className="text-sm"
+              onClick={redirectToCustomerPortal}
+            >
+              Manage Subscription
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <Button
+              type="button"
+              size={"sm"}
+              variant={"secondary"}
+              className="text-sm"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              Start Plan
+            </Button>
+          </div>
+        )}
       </>
 
       <AlertDialog open={openAlertMessage}>
