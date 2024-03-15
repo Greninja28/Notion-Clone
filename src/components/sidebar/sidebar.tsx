@@ -15,6 +15,7 @@ import PlanUsage from "./plan-usage";
 import NativeNavigation from "./native-navigation";
 import { ScrollArea } from "../ui/scroll-area";
 import FoldersDropdownList from "./folders-dropdown-list";
+import UserCard from "./user-card";
 
 interface SidebarProps {
   params: { workspaceId: string };
@@ -42,14 +43,13 @@ const Sidebar = async ({ params, className }: SidebarProps) => {
   // error
   if (subscriptionError || foldersError) redirect("/dashboard");
 
+  // get all the different workspaces private collaborating shared
   const [privateWorkspaces, collaboratedWorkspaces, sharedWorkspaces] =
     await Promise.all([
       getPrivateWorkspaces(user.id),
       getCollaboratingWorkspaces(user.id),
       getSharedWorkspaces(user.id),
     ]);
-
-  // get all the different workspaces private collaborating shared
 
   return (
     <aside
@@ -85,6 +85,7 @@ const Sidebar = async ({ params, className }: SidebarProps) => {
           />
         </ScrollArea>
       </div>
+      <UserCard subscription={subscriptionData} />
     </aside>
   );
 };

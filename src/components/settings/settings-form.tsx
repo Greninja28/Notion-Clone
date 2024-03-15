@@ -55,6 +55,7 @@ import CypressProfileIcon from "../icons/cypressProfileIcon";
 import Link from "next/link";
 import { useSubscriptionModal } from "@/lib/providers/subscription-modal-provider";
 import { postData } from "@/lib/utils";
+import LogoutButton from "../global/logout-button";
 
 const SettingsForm = () => {
   const { toast } = useToast();
@@ -376,11 +377,11 @@ const SettingsForm = () => {
             />
           </div>
         </div>
-        {/* <LogoutButton>
+        <LogoutButton>
           <div className="flex items-center">
             <LogOut />
           </div>
-        </LogoutButton> */}
+        </LogoutButton>
         <p className="flex items-center gap-2 mt-6">
           <CreditCard size={20} />
           Billing & Plan
