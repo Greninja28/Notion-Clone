@@ -9,8 +9,6 @@ import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
   Briefcase,
-  CreditCard,
-  ExternalLink,
   Lock,
   LogOut,
   Plus,
@@ -53,8 +51,6 @@ import {
 } from "../ui/alert-dialog";
 import CypressProfileIcon from "../icons/cypressProfileIcon";
 import Link from "next/link";
-import { useSubscriptionModal } from "@/lib/providers/subscription-modal-provider";
-import { postData } from "@/lib/utils";
 import LogoutButton from "../global/logout-button";
 
 const SettingsForm = () => {
@@ -63,7 +59,6 @@ const SettingsForm = () => {
   const [permissions, setPermissions] = useState("private");
   const [collaborators, setCollaborators] = useState<User[] | []>([]);
   const { user, subscription } = useSupabaseUser();
-  const { open, setOpen } = useSubscriptionModal();
   const router = useRouter();
   const supabase = createClientComponentClient();
   const [openAlertMessage, setOpenAlertMessage] = useState(false);
@@ -76,10 +71,7 @@ const SettingsForm = () => {
   // add collaborators
   const addCollaborator = async (profile: User) => {
     if (!workspaceId) return;
-    if (subscription?.status !== "active" && collaborators.length >= 2) {
-      setOpen(true);
-      return;
-    }
+
     await addCollaborators([profile], workspaceId);
     setCollaborators([...collaborators, profile]);
   };
@@ -161,18 +153,6 @@ const SettingsForm = () => {
     setOpenAlertMessage(false);
   };
 
-  const redirectToCustomerPortal = async () => {
-    setLoadingPortal(true);
-    try {
-      const { url, error } = await postData({ url: "/api/create-portal-link" });
-      window.location.assign(url);
-    } catch (error) {
-      console.log(error);
-      setLoadingPortal(false);
-    }
-    setLoadingPortal(false);
-  };
-
   // fetching avatar details
   // get workspace details
   useEffect(() => {
@@ -228,13 +208,9 @@ const SettingsForm = () => {
           accept="image/*"
           placeholder="Workspace Logo"
           onChange={onChangeWorkspaceLogo}
-          disabled={uploadingLogo || subscription?.status !== "active"}
+          disabled={uploadingLogo}
         />
-        {subscription?.status !== "active" && (
-          <small className="text-muted-foreground">
-            To customize your workspace, you need to be on a Pro Plan
-          </small>
-        )}
+        Customize your workspace.
       </div>
 
       <>
@@ -382,50 +358,6 @@ const SettingsForm = () => {
             <LogOut />
           </div>
         </LogoutButton>
-        <p className="flex items-center gap-2 mt-6">
-          <CreditCard size={20} />
-          Billing & Plan
-        </p>
-        <Separator />
-        <p className="text-muted-foreground">
-          You are currently on a{" "}
-          {subscription?.status === "active" ? "Pro" : "Free"} Plan
-        </p>
-        <Link
-          href={"/"}
-          target="_blank"
-          className="text-muted-foreground flex flex-row items-center gap-2"
-        >
-          View Plans <ExternalLink size={16} />
-        </Link>
-        {subscription?.status === "active" ? (
-          <div>
-            <Button
-              type="button"
-              size={"sm"}
-              variant={"secondary"}
-              disabled={loadingPortal}
-              className="text-sm"
-              onClick={redirectToCustomerPortal}
-            >
-              Manage Subscription
-            </Button>
-          </div>
-        ) : (
-          <div>
-            <Button
-              type="button"
-              size={"sm"}
-              variant={"secondary"}
-              className="text-sm"
-              onClick={() => {
-                setOpen(true);
-              }}
-            >
-              Start Plan
-            </Button>
-          </div>
-        )}
       </>
 
       <AlertDialog open={openAlertMessage}>

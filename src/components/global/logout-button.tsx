@@ -17,7 +17,7 @@ const LogoutButton = ({ children }: LogoutButtonProps) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    router.refresh();
+    router.replace("/");
     dispatch({ type: "SET_WORKSPACES", payload: { workspaces: [] } });
   };
 

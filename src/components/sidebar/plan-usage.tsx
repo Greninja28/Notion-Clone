@@ -19,7 +19,7 @@ const PlanUsage = ({ foldersLength, subscription }: PlanUsageProps) => {
   );
 
   useEffect(() => {
-    const stateFoldersLength = state.workspaces.find(
+    const stateFoldersLength: number | undefined = state.workspaces.find(
       (workspace) => workspace.id === workspaceId
     )?.folders.length;
     if (stateFoldersLength === undefined) return;
@@ -39,9 +39,7 @@ const PlanUsage = ({ foldersLength, subscription }: PlanUsageProps) => {
           </div>
         </div>
       )}
-      {subscription?.status !== "active" && (
-        <Progress value={usagePercentage} className="h-1" />
-      )}
+      <Progress value={usagePercentage} className="h-1" />
     </article>
   );
 };

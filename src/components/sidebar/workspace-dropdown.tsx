@@ -1,6 +1,9 @@
 "use client";
 
-import { useAppState } from "@/lib/providers/state-providers";
+import {
+  appWorkspacesType,
+  useAppState,
+} from "@/lib/providers/state-providers";
 import { workspace } from "@/lib/supabase/supabase.types";
 import React, { useEffect, useState } from "react";
 import SelectedWorkspace from "./selected-workspace";
@@ -52,9 +55,8 @@ const WorkspaceDropdown = ({
   };
 
   useEffect(() => {
-    const findSelectedWorkspace = state.workspaces.find(
-      (workspace) => workspace.id === defaultValue?.id
-    );
+    const findSelectedWorkspace: appWorkspacesType | undefined =
+      state.workspaces.find((workspace) => workspace.id === defaultValue?.id);
 
     if (findSelectedWorkspace) setSelectedOption(findSelectedWorkspace);
   }, [state, defaultValue]);
